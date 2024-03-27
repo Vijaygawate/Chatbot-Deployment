@@ -10,7 +10,7 @@ pipeline{
     stages {
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/uniquesreedhar/Chatbot-UI.git'
+                git branch: 'main', url: 'https://github.com/Vijaygawate/Chatbot-Deployment.git'
             }
         }
         stage('Install Dependencies') {
@@ -49,15 +49,15 @@ pipeline{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
                        sh "docker build -t chatbot ."
-                       sh "docker tag chatbot sreedhar8897/chatbot:latest "
-                       sh "docker push sreedhar8897/chatbot:latest "
+                       sh "docker tag chatbot vijaygawate/chatbot:latest "
+                       sh "docker push vijaygawate/chatbot:latest "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image sreedhar8897/chatbot:latest > trivy.json" 
+                sh "trivy image vijaygawate/chatbot:latest > trivy.json" 
             }
         }
         stage ("Remove container") {
@@ -68,19 +68,19 @@ pipeline{
         }
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name chatbot -p 3000:3000 sreedhar8897/chatbot:latest'
+                sh 'docker run -d --name chatbot -p 3000:3000 vijaygawate/chatbot:latest'
             }
         }
-        stage('Deploy to kubernetes'){
-            steps{
-                withAWS(credentials: 'aws-key', region: 'us-east-1'){
-                script{
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
-                       sh 'kubectl apply -f k8s/chatbot-ui.yaml'
-                  }
-                }
-            }
-        }
-        }
+#        stage('Deploy to kubernetes'){
+#            steps{
+#                withAWS(credentials: 'aws-key', region: 'us-east-1'){
+#                script{
+#                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+#                       sh 'kubectl apply -f k8s/chatbot-ui.yaml'
+#                  }
+#                }
+#            }
+#        }
+#        }
     }
     }
